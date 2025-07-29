@@ -124,9 +124,10 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		TxHeader.Identifier = 0x123;
-		TxHeader.DataLength = 1;
+		TxHeader.Identifier = 0x456;
+		TxHeader.DataLength = 2;
 		txMessageData[0] = VCUREADY;
+		txMessageData[1] = 4;
 		HAL_StatusTypeDef status = HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2,
 				&TxHeader, txMessageData);
 		if (status != HAL_OK) {
