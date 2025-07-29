@@ -48,9 +48,13 @@ FDCAN_HandleTypeDef hfdcan2;
 /* USER CODE BEGIN PV */
 FDCAN_TxHeaderTypeDef TxHeader;
 FDCAN_RxHeaderTypeDef RxHeader;
-uint8_t messageData[64];
+uint8_t txMessageData[64];
+uint8_t rxMessageData[64];
 uint32_t messageID;
 int receivedFrame = 0;
+enum Message {
+	VCUMaybe, VCUERROR1, VCUREADY
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,14 +124,15 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-
-		TxHeader.DataLength = 0;
+		TxHeader.Identifier = 0x123;
+		TxHeader.DataLength = 1;
+		txMessageData[0] = VCUREADY;
 		HAL_StatusTypeDef status = HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2,
-				&TxHeader, messageData);
+				&TxHeader, txMessageData);
 		if (status != HAL_OK) {
 			Error_Handler();
 		}
-		HAL_Delay(100);
+		HAL_Delay(1000);
 
 	}
 	/* USER CODE END 3 */
@@ -205,7 +210,7 @@ static void MX_FDCAN2_Init(void) {
 	hfdcan2.Instance = FDCAN2;
 	hfdcan2.Init.ClockDivider = FDCAN_CLOCK_DIV1;
 	hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-	hfdcan2.Init.Mode = FDCAN_MODE_INTERNAL_LOOPBACK;
+	hfdcan2.Init.Mode = FDCAN_MODE_NORMAL;
 	hfdcan2.Init.AutoRetransmission = DISABLE;
 	hfdcan2.Init.TransmitPause = DISABLE;
 	hfdcan2.Init.ProtocolException = DISABLE;
@@ -261,7 +266,7 @@ static void MX_GPIO_Init(void) {
 void configureFDCANTransmissionHeader(FDCAN_TxHeaderTypeDef *tx_header) {
 	tx_header->IdType = FDCAN_STANDARD_ID;
 	tx_header->TxFrameType = FDCAN_DATA_FRAME;
-	tx_header->DataLength = FDCAN_DLC_BYTES_0;
+	tx_header->DataLength = FDCAN_DLC_BYTES_1;
 	tx_header->ErrorStateIndicator = FDCAN_ESI_ACTIVE;
 	tx_header->BitRateSwitch = FDCAN_BRS_OFF;
 	tx_header->FDFormat = FDCAN_CLASSIC_CAN;
@@ -302,7 +307,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 	if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET) {
 		/* Retrieve RX messages from RX FIFO0 */
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader,
-				messageData) != HAL_OK) {
+				rxMessageData) != HAL_OK) {
 			/* Reception Error */
 			Error_Handler();
 		}
