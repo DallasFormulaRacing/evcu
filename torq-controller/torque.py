@@ -1,0 +1,22 @@
+# Researching torque control algorithm in Py before porting to C and integrating with rest of VCU systems
+
+'''
+How to accelerate:
+APPS (Accel Pedal Position Sensor) sends CAN message to VCU 
+VCU calculates desired torque based on APPS value
+VCU sends CAN message to inverter to set torque, inverter sends 3 phase AC current to motor
+Inverter sends CAN status message back to VCU
+Motor spins
+Motor resolver (which is basically a really fast analog rotational speed sensor) sends back the angular velocity of the motor to the Inverter
+Inverter sends resolver data to VCU via CAN message
+Need Resolver-to-Digital Converter to decode analog resolver signals into digital signals
+'''
+
+'''
+From the  persepective of the torque controller algorithm running on the VCU, the torque controller is a closed loop control system.
+'''
+import numpy as np
+import matplotlib.pyplot as plot
+import dataclasses as dc
+ 
+
