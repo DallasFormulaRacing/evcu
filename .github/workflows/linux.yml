@@ -1,0 +1,4 @@
+name: Linux Build
+
+permissions:
+  security-events: write
